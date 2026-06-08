@@ -1,2 +1,96 @@
-# speedtestpinng
-help to precise wifi speed
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="FastCheck – Free real internet speed test. Check your download, upload speed and ping instantly."/>
+  <title>FastCheck – Real Internet Speed Test</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #050810; --surface: #0c1220; --border: #1a2540;
+      --accent: #00e5ff; --accent2: #7c3aed; --text: #e8edf8;
+      --muted: #5a6a8a; --green: #00ff88; --orange: #ff7043;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; overflow-x: hidden; }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px; pointer-events: none; z-index: 0;
+    }
+
+    nav { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 24px 48px; border-bottom: 1px solid var(--border); }
+    .logo { font-size: 22px; font-weight: 800; }
+    .logo span { color: var(--accent); }
+
+    .hero { text-align: center; padding: 70px 24px 36px; }
+    .hero h1 { font-size: 48px; font-weight: 800; }
+    .hero h1 .highlight { color: var(--accent); }
+    .hero p { color: var(--muted); margin-top: 10px; }
+
+    .test-card { max-width: 600px; margin: 40px auto; background: var(--surface); padding: 30px; border-radius: 20px; border: 1px solid var(--border); }
+
+    .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 20px 0; }
+    .stat-box { background: var(--bg); padding: 10px; border-radius: 10px; text-align: center; }
+
+    .btn-start { width: 100%; padding: 15px; background: var(--accent); border: none; font-weight: bold; cursor: pointer; }
+
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Fast<span>Check</span></div>
+</nav>
+
+<section class="hero">
+  <h1>Test Your <span class="highlight">Real Internet Speed</span></h1>
+  <p>Download, upload and ping test</p>
+</section>
+
+<div class="test-card">
+
+  <div class="stats-row">
+    <div class="stat-box">Ping<br><span id="ping">—</span></div>
+    <div class="stat-box">Download<br><span id="dl">—</span></div>
+    <div class="stat-box">Upload<br><span id="ul">—</span></div>
+  </div>
+
+  <button class="btn-start" onclick="startTest()">START</button>
+
+</div>
+
+<script>
+const SERVER = "https://speed.cloudflare.com";
+
+async function pingTest(){
+  const t0 = performance.now();
+  await fetch(SERVER);
+  return Math.round(performance.now() - t0);
+}
+
+async function downloadTest(){
+  const t0 = performance.now();
+  await fetch(SERVER + "/__down?bytes=2000000");
+  const t1 = performance.now();
+  return (16 / ((t1-t0)/1000)).toFixed(2);
+}
+
+async function uploadTest(){
+  const data = new Uint8Array(2000000);
+  const t0 = performance.now();
+  await fetch(SERVER + "/__up", { method:"POST", body:data });
+  const t1 = performance.now();
+  return (16 / ((t1-t0)/1000)).toFixed(2);
+}
+
+async function startTest(){
+  document.getElementById("ping").innerText = await pingTest() + " ms";
+  document.getElementById("dl").innerText = await downloadTest() + " Mbps";
+  document.getElementById("ul").innerText = await uploadTest() + " Mbps";
+}
+</script>
+
+</body>
+</html>
